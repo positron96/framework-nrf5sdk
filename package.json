@@ -1,0 +1,15 @@
+{
+  "name": "framework-arduinonordicnrf5",
+  "version": "1.170100.0",
+  "description": "nRF5 SDK Framework for Nordic Semiconductor nRF5 MCUs",
+  "keywords": [
+    "framework",
+    "nordic semiconductor",
+    "nrf5"
+  ],
+  "license": "LGPL-2.1-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sandeepmistry/arduino-nRF5"
+  }
+}
