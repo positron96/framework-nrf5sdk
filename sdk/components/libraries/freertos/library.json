@@ -1,0 +1,23 @@
+{
+  "name": "freertos",
+  "version": "0.100000.0",
+  "build": {
+    "includeDir": ".",
+    "flags": [
+      "-I source/include",
+      "-I portable/GCC/nrf52",
+      "-I portable/CMSIS/nrf52",
+      "-DFREERTOS"
+    ],
+    "srcDir": ".",
+    "srcFilter": [
+        "+<source>",
+        "-<source/portable/Common>",
+        "-<source/portable/MemMang>",
+        "+<source/portable/MemMang/heap_1.c>",
+        "+<portable/GCC/nrf52>",
+        "+<portable/CMSIS/nrf52>"
+    ],
+    "extraScript": "platformio-extra.py"
+  }
+}

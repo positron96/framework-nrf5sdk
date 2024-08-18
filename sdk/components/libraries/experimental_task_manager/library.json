@@ -1,0 +1,13 @@
+{
+  "name": "experimental_task_manager",
+  "version": "0.0.0",
+  "build": {
+    "includeDir": ".",
+    "srcDir": ".",
+    "srcFilter": [
+        "+<*.c>", 
+        "-<*_keil.*>",
+        "-<*_iar.*>"
+    ]
+  }  
+}

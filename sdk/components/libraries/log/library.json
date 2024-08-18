@@ -1,0 +1,10 @@
+{
+  "name": "log",
+  "version": "0.0.0",
+  "dependencies": [{"name":"experimental_section_vars "}],
+  "build": {
+    "includeDir": ".",
+    "flags": ["-Isrc"], 
+    "srcDir": "."
+  }  
+}

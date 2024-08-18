@@ -1,0 +1,13 @@
+{
+  "name": "util",
+  "version": "0.0.0",
+  "build": {
+    "includeDir": ".",
+    "srcDir": ".",
+    "srcFilter": [
+        "+<*.c>", 
+        "-<*_keil.*>",
+        "-<*_iar.*>"
+    ]
+  }  
+}

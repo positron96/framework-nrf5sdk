@@ -1,0 +1,10 @@
+{
+  "name": "timer",
+  "version": "0.0.0",
+  "dependencies": ["atomic_fifo", "delay", "sortlist", "freertos"],
+  "build": {
+    "includeDir": ".",
+    "srcDir": ".",
+    "srcFilter": ["+<app_timer_freertos.c>"]
+  }
+}
