@@ -1,0 +1,17 @@
+{
+  "name": "micro_ecc",
+  "version": "0.0.0",
+  "build": {
+    "includeDir": ".",
+    "srcDir": "../../sdk/external/micro-ecc/micro-ecc",
+    "flags": [
+      "-DuECC_ENABLE_VLI_API=0", 
+      "-DuECC_OPTIMIZATION_LEVEL=3", 
+      "-DuECC_SQUARE_FUNC=0",
+      "-DuECC_SUPPORT_COMPRESSED_POINT=0", 
+      "-DuECC_VLI_NATIVE_LITTLE_ENDIAN=1",
+      "-UNRF52_SERIES",
+      "-Wno-unused-function"
+    ]
+  }
+}
