@@ -136,7 +136,7 @@ static uint32_t image_copy(uint32_t dst_addr,
         ret_val = nrf_dfu_settings_write_and_backup(NULL);
         if (ret_val != NRF_SUCCESS)
         {
-            NRF_LOG_ERROR("Failed to write image copying progress to settings page.");
+            NRF_LOG_ERROR("write copying progress to settings");
             return ret_val;
         }
     }
@@ -175,7 +175,7 @@ static uint32_t app_activate(void)
     ret_val = image_copy(target_addr, src_addr, length_left, NRF_BL_FW_COPY_PROGRESS_STORE_STEP);
     if (ret_val != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Failed to copy firmware.");
+        NRF_LOG_ERROR("Failed to copy FW");
         return ret_val;
     }
 
@@ -191,7 +191,7 @@ static uint32_t app_activate(void)
     }
     else
     {
-        NRF_LOG_ERROR("CRC computation failed for copied app: "
+        NRF_LOG_ERROR("CRC failed for app: "
                       "src crc: 0x%08x, res crc: 0x%08x",
                       s_dfu_settings.bank_1.image_crc,
                       crc);
@@ -218,7 +218,7 @@ static uint32_t sd_activate(void)
 
     if (SD_MAGIC_NUMBER_GET(src_addr) != SD_MAGIC_NUMBER)
     {
-        NRF_LOG_ERROR("Source address does not contain a valid SoftDevice.")
+        NRF_LOG_ERROR("address has no SoftDevice")
         return NRF_ERROR_INTERNAL;
     }
 
@@ -240,7 +240,7 @@ static uint32_t sd_activate(void)
     ret_val = image_copy(target_addr, src_addr, length_left, NRF_BL_FW_COPY_PROGRESS_STORE_STEP);
     if (ret_val != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Failed to copy firmware.");
+        NRF_LOG_ERROR("Failed to copy FW");
         return ret_val;
     }
 
@@ -409,7 +409,7 @@ nrf_bootloader_fw_activation_result_t nrf_bootloader_fw_activate(void)
 
     if (ret_val != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Activation failed with error %d (bank code: 0x%x)", ret_val, p_bank->bank_code);
+        NRF_LOG_ERROR("Activation failed %d (bank: 0x%x)", ret_val, p_bank->bank_code);
         result = ACTIVATION_ERROR;
     }
 
@@ -432,7 +432,7 @@ nrf_bootloader_fw_activation_result_t nrf_bootloader_fw_activate(void)
     }
     else
     {
-        NRF_LOG_ERROR("Could not write settings.");
+        NRF_LOG_ERROR("write settings");
         result = ACTIVATION_ERROR;
     }
 

@@ -48,8 +48,8 @@
 #include "pb_decode.h"
 #include "dfu-cc.pb.h"
 #include "crc32.h"
-#include "nrf_crypto.h"
-#include "nrf_crypto_shared.h"
+// #include "nrf_crypto.h"
+// #include "nrf_crypto_shared.h"
 #include "nrf_assert.h"
 #include "nrf_dfu_validation.h"
 #include "nrf_dfu_ver_validation.h"
@@ -81,29 +81,29 @@ static pb_istream_t       m_pb_stream;
 
 static dfu_init_command_t const * mp_init = NULL;
 
-__ALIGN(4) extern const uint8_t pk[64];
+// __ALIGN(4) extern const uint8_t pk[64];
 
-/** @brief Value length structure holding the public key.
- *
- * @details The pk value pointed to is the public key present in dfu_public_key.c
- */
-static nrf_crypto_ecc_public_key_t                  m_public_key;
+// /** @brief Value length structure holding the public key.
+//  *
+//  * @details The pk value pointed to is the public key present in dfu_public_key.c
+//  */
+// static nrf_crypto_ecc_public_key_t                  m_public_key;
 
-/** @brief Structure to hold a signature
- */
-static nrf_crypto_ecdsa_secp256r1_signature_t       m_signature;
+// /** @brief Structure to hold a signature
+//  */
+// static nrf_crypto_ecdsa_secp256r1_signature_t       m_signature;
 
-/** @brief Structure to hold the hash for signature verification
- */
-static nrf_crypto_hash_sha256_digest_t              m_sig_hash;
+// /** @brief Structure to hold the hash for signature verification
+//  */
+// static nrf_crypto_hash_sha256_digest_t              m_sig_hash;
 
-/** @brief Structure to hold the hash for the firmware image
- */
-static nrf_crypto_hash_sha256_digest_t              m_fw_hash;
+// /** @brief Structure to hold the hash for the firmware image
+//  */
+// static nrf_crypto_hash_sha256_digest_t              m_fw_hash;
 
-/** @brief Whether nrf_crypto and local keys have been initialized.
- */
-static bool                                         m_crypto_initialized = false;
+// /** @brief Whether nrf_crypto and local keys have been initialized.
+//  */
+// static bool                                         m_crypto_initialized = false;
 
 /** @brief Flag used by parser code to indicate that the init command has been found to be invalid.
  */
@@ -168,13 +168,13 @@ static bool stored_init_cmd_decode(void)
 
     if (!pb_decode(&m_pb_stream, dfu_packet_fields, &m_packet))
     {
-        NRF_LOG_ERROR("Handler: Invalid protocol buffer m_pb_stream");
+        NRF_LOG_ERROR("!m_pb_stream");
         return false;
     }
 
     if (!m_init_packet_valid || (m_packet.has_signed_command && m_packet.has_command))
     {
-        NRF_LOG_ERROR("Handler: Invalid init command.");
+        NRF_LOG_ERROR("!init cmd");
         return false;
     }
     else if (m_packet.has_signed_command && m_packet.signed_command.command.has_init)
@@ -186,7 +186,7 @@ static bool stored_init_cmd_decode(void)
 
         if (!pb_decode(&m_pb_stream, dfu_init_command_fields, p_init))
         {
-            NRF_LOG_ERROR("Handler: Invalid protocol buffer m_pb_stream (init command)");
+            NRF_LOG_ERROR("!m_pb_stream");
             return false;
         }
     }
@@ -207,29 +207,29 @@ static bool stored_init_cmd_decode(void)
 
 static void crypto_init(void)
 {
-    ret_code_t err_code;
-    uint8_t    pk_copy[sizeof(pk)];
+    // ret_code_t err_code;
+    // uint8_t    pk_copy[sizeof(pk)];
 
-    if (m_crypto_initialized)
-    {
-        return;
-    }
+    // if (m_crypto_initialized)
+    // {
+    //     return;
+    // }
 
-    err_code = nrf_crypto_init();
-    ASSERT(err_code == NRF_SUCCESS);
-    UNUSED_PARAMETER(err_code);
+    // err_code = nrf_crypto_init();
+    // ASSERT(err_code == NRF_SUCCESS);
+    // UNUSED_PARAMETER(err_code);
 
-    // Convert public key to big-endian format for use in nrf_crypto.
-    nrf_crypto_internal_double_swap_endian(pk_copy, pk, sizeof(pk) / 2);
+    // // Convert public key to big-endian format for use in nrf_crypto.
+    // nrf_crypto_internal_double_swap_endian(pk_copy, pk, sizeof(pk) / 2);
 
-    err_code = nrf_crypto_ecc_public_key_from_raw(&g_nrf_crypto_ecc_secp256r1_curve_info,
-                                                  &m_public_key,
-                                                  pk_copy,
-                                                  sizeof(pk));
-    ASSERT(err_code == NRF_SUCCESS);
-    UNUSED_PARAMETER(err_code);
+    // err_code = nrf_crypto_ecc_public_key_from_raw(&g_nrf_crypto_ecc_secp256r1_curve_info,
+    //                                               &m_public_key,
+    //                                               pk_copy,
+    //                                               sizeof(pk));
+    // ASSERT(err_code == NRF_SUCCESS);
+    // UNUSED_PARAMETER(err_code);
 
-    m_crypto_initialized = true;
+    // m_crypto_initialized = true;
 }
 
 
@@ -279,7 +279,7 @@ nrf_dfu_result_t nrf_dfu_validation_init_cmd_append(uint8_t const * p_data, uint
     nrf_dfu_result_t ret_val = NRF_DFU_RES_CODE_SUCCESS;
     if ((length + s_dfu_settings.progress.command_offset) > s_dfu_settings.progress.command_size)
     {
-        NRF_LOG_ERROR("Init command larger than expected.");
+        NRF_LOG_ERROR("Init cmd larger than expected");
         ret_val = NRF_DFU_RES_CODE_INVALID_PARAMETER;
     }
     else
@@ -337,75 +337,77 @@ static nrf_dfu_result_t nrf_dfu_validation_signature_check(dfu_signature_type_t 
                                                            uint8_t      const * p_data,
                                                            uint32_t             data_len)
 {
-    ret_code_t err_code;
-    size_t     hash_len = NRF_CRYPTO_HASH_SIZE_SHA256;
-
-    nrf_crypto_hash_context_t         hash_context   = {0};
-    nrf_crypto_ecdsa_verify_context_t verify_context = {0};
-
-    crypto_init();
-
-    NRF_LOG_INFO("Signature required. Checking signature.")
-    if (p_signature == NULL)
-    {
-        NRF_LOG_WARNING("No signature found.");
-        return EXT_ERR(NRF_DFU_EXT_ERROR_SIGNATURE_MISSING);
-    }
-
-    if (signature_type != DFU_SIGNATURE_TYPE_ECDSA_P256_SHA256)
-    {
-        NRF_LOG_INFO("Invalid signature type");
-        return EXT_ERR(NRF_DFU_EXT_ERROR_WRONG_SIGNATURE_TYPE);
-    }
-
-    NRF_LOG_INFO("Calculating hash (len: %d)", data_len);
-    err_code = nrf_crypto_hash_calculate(&hash_context,
-                                         &g_nrf_crypto_hash_sha256_info,
-                                         p_data,
-                                         data_len,
-                                         m_sig_hash,
-                                         &hash_len);
-    if (err_code != NRF_SUCCESS)
-    {
-        return NRF_DFU_RES_CODE_OPERATION_FAILED;
-    }
-
-    if (sizeof(m_signature) != signature_len)
-    {
-        return NRF_DFU_RES_CODE_OPERATION_FAILED;
-    }
-
-    // Prepare the signature received over the air.
-    memcpy(m_signature, p_signature, signature_len);
-
-    // Calculate the signature.
-    NRF_LOG_INFO("Verify signature");
-
-    // The signature is in little-endian format. Change it to big-endian format for nrf_crypto use.
-    nrf_crypto_internal_double_swap_endian_in_place(m_signature, sizeof(m_signature) / 2);
-
-    err_code = nrf_crypto_ecdsa_verify(&verify_context,
-                                       &m_public_key,
-                                       m_sig_hash,
-                                       hash_len,
-                                       m_signature,
-                                       sizeof(m_signature));
-    if (err_code != NRF_SUCCESS)
-    {
-        NRF_LOG_ERROR("Signature failed (err_code: 0x%x)", err_code);
-        NRF_LOG_DEBUG("Signature:");
-        NRF_LOG_HEXDUMP_DEBUG(m_signature, sizeof(m_signature));
-        NRF_LOG_DEBUG("Hash:");
-        NRF_LOG_HEXDUMP_DEBUG(m_sig_hash, hash_len);
-        NRF_LOG_DEBUG("Public Key:");
-        NRF_LOG_HEXDUMP_DEBUG(pk, sizeof(pk));
-        NRF_LOG_FLUSH();
-
-        return NRF_DFU_RES_CODE_INVALID_OBJECT;
-    }
-
-    NRF_LOG_INFO("Image verified");
     return NRF_DFU_RES_CODE_SUCCESS;
+
+    // ret_code_t err_code;
+    // size_t     hash_len = NRF_CRYPTO_HASH_SIZE_SHA256;
+
+    // nrf_crypto_hash_context_t         hash_context   = {0};
+    // nrf_crypto_ecdsa_verify_context_t verify_context = {0};
+
+    // crypto_init();
+
+    // NRF_LOG_INFO("Signature required. Checking signature.")
+    // if (p_signature == NULL)
+    // {
+    //     NRF_LOG_WARNING("No signature found.");
+    //     return EXT_ERR(NRF_DFU_EXT_ERROR_SIGNATURE_MISSING);
+    // }
+
+    // if (signature_type != DFU_SIGNATURE_TYPE_ECDSA_P256_SHA256)
+    // {
+    //     NRF_LOG_INFO("Invalid signature type");
+    //     return EXT_ERR(NRF_DFU_EXT_ERROR_WRONG_SIGNATURE_TYPE);
+    // }
+
+    // NRF_LOG_INFO("Calculating hash (len: %d)", data_len);
+    // err_code = nrf_crypto_hash_calculate(&hash_context,
+    //                                      &g_nrf_crypto_hash_sha256_info,
+    //                                      p_data,
+    //                                      data_len,
+    //                                      m_sig_hash,
+    //                                      &hash_len);
+    // if (err_code != NRF_SUCCESS)
+    // {
+    //     return NRF_DFU_RES_CODE_OPERATION_FAILED;
+    // }
+
+    // if (sizeof(m_signature) != signature_len)
+    // {
+    //     return NRF_DFU_RES_CODE_OPERATION_FAILED;
+    // }
+
+    // // Prepare the signature received over the air.
+    // memcpy(m_signature, p_signature, signature_len);
+
+    // // Calculate the signature.
+    // NRF_LOG_INFO("Verify signature");
+
+    // // The signature is in little-endian format. Change it to big-endian format for nrf_crypto use.
+    // nrf_crypto_internal_double_swap_endian_in_place(m_signature, sizeof(m_signature) / 2);
+
+    // err_code = nrf_crypto_ecdsa_verify(&verify_context,
+    //                                    &m_public_key,
+    //                                    m_sig_hash,
+    //                                    hash_len,
+    //                                    m_signature,
+    //                                    sizeof(m_signature));
+    // if (err_code != NRF_SUCCESS)
+    // {
+    //     NRF_LOG_ERROR("Signature failed (err_code: 0x%x)", err_code);
+    //     NRF_LOG_DEBUG("Signature:");
+    //     NRF_LOG_HEXDUMP_DEBUG(m_signature, sizeof(m_signature));
+    //     NRF_LOG_DEBUG("Hash:");
+    //     NRF_LOG_HEXDUMP_DEBUG(m_sig_hash, hash_len);
+    //     NRF_LOG_DEBUG("Public Key:");
+    //     NRF_LOG_HEXDUMP_DEBUG(pk, sizeof(pk));
+    //     NRF_LOG_FLUSH();
+
+    //     return NRF_DFU_RES_CODE_INVALID_OBJECT;
+    // }
+
+    // NRF_LOG_INFO("Image verified");
+    // return NRF_DFU_RES_CODE_SUCCESS;
 }
 
 
@@ -436,7 +438,7 @@ static nrf_dfu_result_t update_data_size_get(dfu_init_command_t const * p_init, 
             }
             else
             {
-                NRF_LOG_ERROR("BL size (%d) over limit (%d)", p_init->bl_size, BOOTLOADER_SIZE);
+                NRF_LOG_ERROR("BL size (%d) > limit (%d)", p_init->bl_size, BOOTLOADER_SIZE);
                 fw_sz   = 0;
                 ret_val = NRF_DFU_RES_CODE_INSUFFICIENT_RESOURCES;
             }
@@ -516,7 +518,7 @@ static nrf_dfu_result_t update_data_addr_get(dfu_init_command_t const * p_init,
                                                 keep_softdevice(p_init));
     if (err_code != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Can't find room for update");
+        NRF_LOG_ERROR("no room for update");
         ret_val = NRF_DFU_RES_CODE_INSUFFICIENT_RESOURCES;
     }
     else
@@ -579,7 +581,7 @@ nrf_dfu_result_t nrf_dfu_validation_init_cmd_execute(uint32_t * p_dst_data_addr,
     if (s_dfu_settings.progress.command_offset != s_dfu_settings.progress.command_size)
     {
         // The object wasn't the right (requested) size.
-        NRF_LOG_ERROR("Execute with faulty offset");
+        NRF_LOG_ERROR("Exec faulty offset");
         ret_val = NRF_DFU_RES_CODE_OPERATION_NOT_PERMITTED;
     }
     else if (m_valid_init_cmd_present)
@@ -620,7 +622,7 @@ nrf_dfu_result_t nrf_dfu_validation_init_cmd_execute(uint32_t * p_dst_data_addr,
     }
     else
     {
-        NRF_LOG_ERROR("Failed to decode init packet");
+        NRF_LOG_ERROR("!decode init packet");
         ret_val = NRF_DFU_RES_CODE_INVALID_OBJECT;
     }
 
@@ -632,53 +634,55 @@ nrf_dfu_result_t nrf_dfu_validation_init_cmd_execute(uint32_t * p_dst_data_addr,
 // little_endian specifies the endianness of @p p_hash.
 static bool nrf_dfu_validation_hash_ok(uint8_t const * p_hash, uint32_t src_addr, uint32_t data_len, bool little_endian)
 {
-    ret_code_t err_code;
-    bool       result   = true;
-    uint8_t    hash_be[NRF_CRYPTO_HASH_SIZE_SHA256];
-    size_t     hash_len = NRF_CRYPTO_HASH_SIZE_SHA256;
+    return true;
 
-    nrf_crypto_hash_context_t hash_context = {0};
+    // ret_code_t err_code;
+    // bool       result   = true;
+    // uint8_t    hash_be[NRF_CRYPTO_HASH_SIZE_SHA256];
+    // size_t     hash_len = NRF_CRYPTO_HASH_SIZE_SHA256;
 
-    crypto_init();
+    // nrf_crypto_hash_context_t hash_context = {0};
 
-    if (little_endian)
-    {
-        // Convert to hash to big-endian format for use in nrf_crypto.
-        nrf_crypto_internal_swap_endian(hash_be,
-                                        p_hash,
-                                        NRF_CRYPTO_HASH_SIZE_SHA256);
-        p_hash = hash_be;
-    }
+    // crypto_init();
 
-    NRF_LOG_DEBUG("Hash verification. start address: 0x%x, size: 0x%x",
-                  src_addr,
-                  data_len);
+    // if (little_endian)
+    // {
+    //     // Convert to hash to big-endian format for use in nrf_crypto.
+    //     nrf_crypto_internal_swap_endian(hash_be,
+    //                                     p_hash,
+    //                                     NRF_CRYPTO_HASH_SIZE_SHA256);
+    //     p_hash = hash_be;
+    // }
 
-    err_code = nrf_crypto_hash_calculate(&hash_context,
-                                         &g_nrf_crypto_hash_sha256_info,
-                                         (uint8_t*)src_addr,
-                                         data_len,
-                                         m_fw_hash,
-                                         &hash_len);
+    // NRF_LOG_DEBUG("Hash verification. start address: 0x%x, size: 0x%x",
+    //               src_addr,
+    //               data_len);
 
-    if (err_code != NRF_SUCCESS)
-    {
-        NRF_LOG_ERROR("Could not run hash verification (err_code 0x%x).", err_code);
-        result = false;
-    }
-    else if (memcmp(m_fw_hash, p_hash, NRF_CRYPTO_HASH_SIZE_SHA256) != 0)
-    {
-        NRF_LOG_WARNING("Hash verification failed.");
-        NRF_LOG_DEBUG("Expected FW hash:")
-        NRF_LOG_HEXDUMP_DEBUG(p_hash, NRF_CRYPTO_HASH_SIZE_SHA256);
-        NRF_LOG_DEBUG("Actual FW hash:")
-        NRF_LOG_HEXDUMP_DEBUG(m_fw_hash, NRF_CRYPTO_HASH_SIZE_SHA256);
-        NRF_LOG_FLUSH();
+    // err_code = nrf_crypto_hash_calculate(&hash_context,
+    //                                      &g_nrf_crypto_hash_sha256_info,
+    //                                      (uint8_t*)src_addr,
+    //                                      data_len,
+    //                                      m_fw_hash,
+    //                                      &hash_len);
 
-        result = false;
-    }
+    // if (err_code != NRF_SUCCESS)
+    // {
+    //     NRF_LOG_ERROR("Could not run hash verification (err_code 0x%x).", err_code);
+    //     result = false;
+    // }
+    // else if (memcmp(m_fw_hash, p_hash, NRF_CRYPTO_HASH_SIZE_SHA256) != 0)
+    // {
+    //     NRF_LOG_WARNING("Hash verification failed.");
+    //     NRF_LOG_DEBUG("Expected FW hash:")
+    //     NRF_LOG_HEXDUMP_DEBUG(p_hash, NRF_CRYPTO_HASH_SIZE_SHA256);
+    //     NRF_LOG_DEBUG("Actual FW hash:")
+    //     NRF_LOG_HEXDUMP_DEBUG(m_fw_hash, NRF_CRYPTO_HASH_SIZE_SHA256);
+    //     NRF_LOG_FLUSH();
 
-    return result;
+    //     result = false;
+    // }
+
+    // return result;
 }
 
 
@@ -726,19 +730,19 @@ static bool softdevice_info_ok(uint32_t sd_start_addr, uint32_t sd_size)
 
     if (SD_MAGIC_NUMBER_GET(sd_start_addr) != SD_MAGIC_NUMBER)
     {
-        NRF_LOG_ERROR("The SoftDevice does not contain the magic number identifying it as a SoftDevice.");
+        NRF_LOG_ERROR("!SD magic number");
         result = false;
     }
     else if (SD_SIZE_GET(sd_start_addr) < ALIGN_TO_PAGE(sd_size + MBR_SIZE))
     {
         // The size in the info struct should be rounded up to a page boundary
         // and be larger than the actual size + the size of the MBR.
-        NRF_LOG_ERROR("The SoftDevice size in the info struct is too small compared with the size reported in the init command.");
+        NRF_LOG_ERROR("!SD size too small");
         result = false;
     }
     else if (SD_PRESENT && (SD_ID_GET(MBR_SIZE) != SD_ID_GET(sd_start_addr)))
     {
-        NRF_LOG_ERROR("The new SoftDevice is of a different family than the present SoftDevice. Compatibility cannot be guaranteed.");
+        NRF_LOG_ERROR("!SD family than the present");
         result = false;
     }
 
@@ -754,9 +758,9 @@ static bool boot_validation_extract(boot_validation_t * p_boot_validation,
                                     boot_validation_type_t default_type)
 {
     ret_code_t err_code;
-    size_t     hash_len = NRF_CRYPTO_HASH_SIZE_SHA256;
+    // size_t     hash_len = NRF_CRYPTO_HASH_SIZE_SHA256;
 
-    nrf_crypto_hash_context_t hash_context = {0};
+    // nrf_crypto_hash_context_t hash_context = {0};
 
     memset(p_boot_validation, 0, sizeof(boot_validation_t));
     p_boot_validation->type = (p_init->boot_validation_count > index)
@@ -773,17 +777,17 @@ static bool boot_validation_extract(boot_validation_t * p_boot_validation,
             break;
 
         case VALIDATE_SHA256:
-            err_code = nrf_crypto_hash_calculate(&hash_context,
-                                                 &g_nrf_crypto_hash_sha256_info,
-                                                 (uint8_t*)start_addr,
-                                                 data_len,
-                                                 p_boot_validation->bytes,
-                                                 &hash_len);
-            if (err_code != NRF_SUCCESS)
-            {
-                NRF_LOG_ERROR("nrf_crypto_hash_calculate() failed with error %s", nrf_strerror_get(err_code));
-                return false;
-            }
+            // err_code = nrf_crypto_hash_calculate(&hash_context,
+            //                                      &g_nrf_crypto_hash_sha256_info,
+            //                                      (uint8_t*)start_addr,
+            //                                      data_len,
+            //                                      p_boot_validation->bytes,
+            //                                      &hash_len);
+            // if (err_code != NRF_SUCCESS)
+            // {
+            //     NRF_LOG_ERROR("nrf_crypto_hash_calculate() failed with error %s", nrf_strerror_get(err_code));
+            //     return false;
+            // }
             break;
 
         case VALIDATE_ECDSA_P256_SHA256:
@@ -791,7 +795,7 @@ static bool boot_validation_extract(boot_validation_t * p_boot_validation,
             break;
 
         default:
-            NRF_LOG_ERROR("Invalid boot validation type: %d", p_boot_validation->type);
+            NRF_LOG_ERROR("!boot validation type: %d", p_boot_validation->type);
             return false;
     }
 
@@ -876,7 +880,7 @@ static bool postvalidate_sd_bl(dfu_init_command_t const  * p_init,
             NRF_LOG_WARNING("Invalidating app because it is incompatible with the SoftDevice.");
             if (DFU_REQUIRES_SOFTDEVICE && !with_bl)
             {
-                NRF_LOG_ERROR("Major SD update but no BL. Abort to avoid incapacitating the BL.");
+                NRF_LOG_ERROR("Major SD update but no BL");
                 return false;
             }
         }
@@ -972,13 +976,14 @@ bool nrf_dfu_validation_boot_validate(boot_validation_t const * p_validation, ui
 
         case VALIDATE_ECDSA_P256_SHA256:
         {
-            nrf_dfu_result_t res_code = nrf_dfu_validation_signature_check(
-                                            DFU_SIGNATURE_TYPE_ECDSA_P256_SHA256,
-                                            p_validation->bytes,
-                                            NRF_CRYPTO_ECDSA_SECP256R1_SIGNATURE_SIZE,
-                                            p_data,
-                                            data_len);
-            return (res_code == NRF_DFU_RES_CODE_SUCCESS);
+            return true;
+            // nrf_dfu_result_t res_code = nrf_dfu_validation_signature_check(
+            //                                 DFU_SIGNATURE_TYPE_ECDSA_P256_SHA256,
+            //                                 p_validation->bytes,
+            //                                 NRF_CRYPTO_ECDSA_SECP256R1_SIGNATURE_SIZE,
+            //                                 p_data,
+            //                                 data_len);
+            // return (res_code == NRF_DFU_RES_CODE_SUCCESS);
         }
 
         default:

@@ -58,14 +58,14 @@ uint32_t nrf_dfu_svci_vector_table_set(void)
         err_code = sd_softdevice_vector_table_base_set(bootloader_addr);
         if (err_code != NRF_SUCCESS)
         {
-            NRF_LOG_ERROR("Failed running sd_softdevice_vector_table_base_set");
+            NRF_LOG_ERROR("!sd_softdevice_vector_table_base_set");
             return err_code;
         }
 
         return NRF_SUCCESS;
     }
 
-    NRF_LOG_ERROR("No bootloader was found");
+    NRF_LOG_ERROR("No bootloader");
     return NRF_ERROR_NO_MEM;
 }
 
@@ -78,7 +78,7 @@ uint32_t nrf_dfu_svci_vector_table_unset(void)
     err_code = sd_softdevice_vector_table_base_set(APP_START_ADDR);
     if (err_code != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Failed running sd_softdevice_vector_table_base_set");
+        NRF_LOG_ERROR("!sd_softdevice_vector_table_base_set");
         return err_code;
     }
 

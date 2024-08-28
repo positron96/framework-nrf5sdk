@@ -88,7 +88,7 @@ uint32_t nrf_dfu_init(nrf_dfu_observer_t observer)
     ret_val = nrf_dfu_transports_init(dfu_observer);
     if (ret_val != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Could not initalize DFU transport: 0x%08x", ret_val);
+        NRF_LOG_ERROR("!init DFU transport: 0x%08x", ret_val);
         return ret_val;
     }
 

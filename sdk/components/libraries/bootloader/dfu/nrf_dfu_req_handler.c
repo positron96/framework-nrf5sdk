@@ -57,7 +57,7 @@
 #include "crc32.h"
 #include "app_scheduler.h"
 #include "sdk_macros.h"
-#include "nrf_crypto.h"
+// #include "nrf_crypto.h"
 #include "nrf_assert.h"
 #include "nrf_dfu_validation.h"
 
@@ -402,14 +402,14 @@ static void on_data_obj_create_request(nrf_dfu_request_t * p_req, nrf_dfu_respon
     if (!nrf_dfu_validation_init_cmd_present())
     {
         /* Can't accept data because DFU isn't initialized by init command. */
-        NRF_LOG_ERROR("Cannot create data object without valid init command");
+        NRF_LOG_ERROR("validation_init_cmd_present");
         p_res->result = NRF_DFU_RES_CODE_OPERATION_NOT_PERMITTED;
         return;
     }
 
     if (p_req->create.object_size == 0)
     {
-        NRF_LOG_ERROR("Object size cannot be 0.")
+        NRF_LOG_ERROR("Object size 0")
         p_res->result = NRF_DFU_RES_CODE_INVALID_PARAMETER;
         return;
     }
@@ -417,7 +417,7 @@ static void on_data_obj_create_request(nrf_dfu_request_t * p_req, nrf_dfu_respon
     if (  ((p_req->create.object_size & (CODE_PAGE_SIZE - 1)) != 0)
         && (s_dfu_settings.progress.firmware_image_offset_last + p_req->create.object_size != m_firmware_size_req))
     {
-        NRF_LOG_ERROR("Object size must be page aligned");
+        NRF_LOG_ERROR("Obj unaligned");
         p_res->result = NRF_DFU_RES_CODE_INVALID_PARAMETER;
         return;
     }
@@ -425,7 +425,7 @@ static void on_data_obj_create_request(nrf_dfu_request_t * p_req, nrf_dfu_respon
     if (p_req->create.object_size > DATA_OBJECT_MAX_SIZE)
     {
         /* It is impossible to handle the command because the size is too large */
-        NRF_LOG_ERROR("Invalid size for object (too large)");
+        NRF_LOG_ERROR("obj too large");
         p_res->result = NRF_DFU_RES_CODE_INSUFFICIENT_RESOURCES;
         return;
     }
@@ -433,8 +433,8 @@ static void on_data_obj_create_request(nrf_dfu_request_t * p_req, nrf_dfu_respon
     if ((s_dfu_settings.progress.firmware_image_offset_last + p_req->create.object_size) >
         m_firmware_size_req)
     {
-        NRF_LOG_ERROR("Creating the object with size 0x%08x would overflow firmware size. "
-                      "Offset is 0x%08x and firmware size is 0x%08x.",
+        NRF_LOG_ERROR("size 0x%08x would overflow firmware "
+                      "Offset 0x%08x and firmware size 0x%08x.",
                       p_req->create.object_size,
                       s_dfu_settings.progress.firmware_image_offset_last,
                       m_firmware_size_req);
@@ -452,7 +452,7 @@ static void on_data_obj_create_request(nrf_dfu_request_t * p_req, nrf_dfu_respon
     if (nrf_dfu_flash_erase((m_firmware_start_addr + s_dfu_settings.progress.firmware_image_offset),
                             CEIL_DIV(p_req->create.object_size, CODE_PAGE_SIZE), NULL) != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Erase operation failed");
+        NRF_LOG_ERROR("Erase failed");
         p_res->result = NRF_DFU_RES_CODE_INVALID_OBJECT;
         return;
     }
@@ -481,7 +481,7 @@ static void on_data_obj_write_request(nrf_dfu_request_t * p_req, nrf_dfu_respons
     if ((p_req->write.len + data_object_offset) > s_dfu_settings.progress.data_object_size)
     {
         /* Can't accept data because too much data has been received. */
-        NRF_LOG_ERROR("Write request too long");
+        NRF_LOG_ERROR("Write req too long");
         p_res->result = NRF_DFU_RES_CODE_INVALID_PARAMETER;
         return;
     }
@@ -546,7 +546,7 @@ static void on_data_obj_execute_request_sched(void * p_evt, uint16_t event_lengt
         ret = app_sched_event_put(p_req, sizeof(nrf_dfu_request_t), on_data_obj_execute_request_sched);
         if (ret != NRF_SUCCESS)
         {
-            NRF_LOG_ERROR("Failed to schedule object execute: 0x%x.", ret);
+            NRF_LOG_ERROR("sched_event_put 0x%x.", ret);
         }
         return;
     }
@@ -603,7 +603,7 @@ static bool on_data_obj_execute_request(nrf_dfu_request_t * p_req, nrf_dfu_respo
     if (s_dfu_settings.progress.data_object_size != data_object_size)
     {
         /* The size of the written object was not as expected. */
-        NRF_LOG_ERROR("Invalid data. expected: %d, got: %d",
+        NRF_LOG_ERROR("expected: %d, got: %d",
                       s_dfu_settings.progress.data_object_size,
                       data_object_size);
 
@@ -704,7 +704,7 @@ static bool nrf_dfu_obj_op(nrf_dfu_request_t * p_req, nrf_dfu_response_t * p_res
 
         default:
             /* The select request had an invalid object type. */
-            NRF_LOG_ERROR("Invalid object type in request.");
+            NRF_LOG_ERROR("Invalid type in request.");
             current_object = NRF_DFU_OBJ_TYPE_INVALID;
             p_res->result  = NRF_DFU_RES_CODE_INVALID_OBJECT;
             break;
@@ -778,14 +778,14 @@ static void nrf_dfu_req_handler_req_process(nrf_dfu_request_t * p_req)
         } break;
 
         default:
-            NRF_LOG_INFO("Invalid opcode received: 0x%x.", p_req->request);
+            //NRF_LOG_INFO("Invalid opcode received: 0x%x.", p_req->request);
             response.result = NRF_DFU_RES_CODE_OP_CODE_NOT_SUPPORTED;
             break;
     }
 
     if (response_ready)
     {
-        NRF_LOG_DEBUG("Request handling complete. Result: 0x%x", response.result);
+        //NRF_LOG_DEBUG("Request handling complete. Result: 0x%x", response.result);
 
         p_req->callback.response(&response, p_req->p_context);
 

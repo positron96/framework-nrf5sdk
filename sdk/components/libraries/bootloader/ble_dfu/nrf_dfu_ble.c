@@ -654,7 +654,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             err_code = sd_ble_gap_conn_param_update(m_conn_handle, &m_gap_conn_params);
             if (err_code != NRF_SUCCESS)
             {
-                NRF_LOG_ERROR("Failure to update connection parameters: 0x%x", err_code);
+                NRF_LOG_ERROR("gap_conn_param_update: 0x%x", err_code);
             }
         } break;
 
@@ -790,7 +790,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
             if (err_code != NRF_SUCCESS)
             {
-                NRF_LOG_ERROR("Failure to update connection parameter request: 0x%x", err_code);
+                NRF_LOG_ERROR("gap_conn_param_update: 0x%x", err_code);
             }
 
             APP_ERROR_CHECK(err_code);
@@ -848,7 +848,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
                     if (err_code != NRF_SUCCESS)
                     {
-                        NRF_LOG_ERROR("Could not handle on_ctrl_pt_write. err_code: 0x%04x", err_code);
+                        NRF_LOG_ERROR("on_ctrl_pt_write. err_code: 0x%04x", err_code);
                     }
                 }
             }
