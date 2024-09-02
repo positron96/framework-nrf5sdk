@@ -283,7 +283,7 @@ ret_code_t nrf_dfu_settings_init(bool sd_irq_initialized)
     ret_code_t err_code = nrf_dfu_flash_init(sd_irq_initialized);
     if (err_code != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("nrf_dfu_flash_init() failed with error: %x", err_code);
+        NRF_LOG_ERROR("flash_init: %x", err_code);
         return NRF_ERROR_INTERNAL;
     }
 
@@ -293,7 +293,7 @@ ret_code_t nrf_dfu_settings_init(bool sd_irq_initialized)
 
     if (err_code != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("nrf_dfu_settings_write_and_backup() failed with error: %x", err_code);
+        NRF_LOG_ERROR("settings_write_and_backup: %x", err_code);
         return NRF_ERROR_INTERNAL;
     }
 
@@ -342,7 +342,7 @@ static ret_code_t settings_write(void                   * p_dst,
 
     if (err_code != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Could not erase the settings page!");
+        NRF_LOG_ERROR("!erase the settings");
         return NRF_ERROR_INTERNAL;
     }
 
@@ -356,7 +356,7 @@ static ret_code_t settings_write(void                   * p_dst,
 
     if (err_code != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Could not write the DFU settings page!");
+        NRF_LOG_ERROR("!write the settings");
         return NRF_ERROR_INTERNAL;
     }
 
@@ -391,7 +391,7 @@ void settings_backup(nrf_dfu_flash_callback_t callback, void * p_src)
 
     if (err_code != NRF_SUCCESS)
     {
-        NRF_LOG_ERROR("Could not perform backup of bootloader settings! Error: 0x%x", err_code);
+        NRF_LOG_ERROR("!backup of settings: 0x%x", err_code);
     }
 #endif
 }

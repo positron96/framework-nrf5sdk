@@ -65,7 +65,7 @@ void nrf_dfu_softdevice_invalidate(void)
         ret_code_t err_code = nrf_dfu_flash_store(SD_MAGIC_NUMBER_ABS_OFFSET_GET(MBR_SIZE), &all_zero, 4, NULL);
         if (err_code != NRF_SUCCESS)
         {
-            NRF_LOG_ERROR("Could not invalidate SoftDevice.")
+            NRF_LOG_ERROR("!invalidate SoftDevice.")
         }
         else
         {
